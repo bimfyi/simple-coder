@@ -65,6 +65,7 @@
         "noInferrableTypes": "error",
         "noNamespace": "error",
         "noNegationElse": "off",
+        "noNonNullAssertion": "off",
         "noParameterAssign": "error",
         "useAsConstAssertion": "error",
         "useBlockStatements": "error",
@@ -108,6 +109,7 @@
     }
   },
   "files": {
+    "includes": ["src/**/*.ts"],
     "ignoreUnknown": true
   }
 }
