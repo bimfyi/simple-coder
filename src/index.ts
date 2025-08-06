@@ -28,6 +28,10 @@ async function main() {
     for await (const chunk of result.fullStream) {
       if (chunk.type === "text-delta") {
         process.stdout.write(chunk.text);
+      } else if (chunk.type === "tool-call") {
+        process.stdout.write(
+          `\n\n[Tool Call: ${chunk.toolName}] - Input: ${JSON.stringify(chunk.input)}\n`,
+        );
       } else if (chunk.type === "tool-result") {
         const toolResult = chunk as CodeAgentToolResult;
         if (!toolResult.dynamic) {

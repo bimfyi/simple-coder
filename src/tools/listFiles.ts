@@ -11,6 +11,7 @@ const listFilesInputSchema = z.object({
 });
 
 const listFilesOutputSchema = z.union([
+  // success case
   z.object({
     path: z.string(),
     files: z.array(z.string()),
@@ -22,6 +23,7 @@ const listFilesOutputSchema = z.union([
       }),
     ),
   }),
+  // error case
   z.object({
     error: z.string(),
     path: z.string(),
@@ -30,13 +32,14 @@ const listFilesOutputSchema = z.union([
 
 type ListFilesOutput = z.infer<typeof listFilesOutputSchema>;
 
+/**
+ * Tool for listing files and folders in a directory.
+ */
 export const listFiles = tool({
   description: "List files and folders in a directory",
   inputSchema: listFilesInputSchema,
   outputSchema: listFilesOutputSchema,
   execute: async ({ path = "." }) => {
-    process.stdout.write(`\n[Listing files in: ${path === "." ? "current directory" : path}]\n`);
-
     try {
       const targetPath = resolve(process.cwd(), path);
       const entries = await fs.readdir(targetPath, { withFileTypes: true });
@@ -83,12 +86,20 @@ export function handleListFileOutput(output: ListFilesOutput) {
   if ("error" in output) {
     process.stdout.write(`Error: ${output.error}\n`);
   } else {
-    process.stdout.write(`\nPath: ${output.path}\n`);
-    if (output.folders.length > 0) {
-      process.stdout.write(`Folders: ${output.folders.join(", ")}\n`);
-    }
-    if (output.files.length > 0) {
-      process.stdout.write(`Files: ${output.files.join(", ")}\n`);
+    process.stdout.write(`\n📁 ${output.path}\n`);
+
+    const items = output.items;
+    const lastIndex = items.length - 1;
+
+    items.forEach((item, index) => {
+      const isLast = index === lastIndex;
+      const prefix = isLast ? "└── " : "├── ";
+      const icon = item.type === "folder" ? "📂 " : "📄 ";
+      process.stdout.write(`${prefix}${icon}${item.name}\n`);
+    });
+
+    if (items.length === 0) {
+      process.stdout.write("└── (empty)\n");
     }
   }
 }
