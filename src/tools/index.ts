@@ -1,5 +1,5 @@
 import type { InferToolOutput, TypedToolCall, TypedToolResult } from "ai";
-import { handleListFileOutput, listFiles } from "./listFiles.js";
+import { handleListFileOutput, listFiles } from "./listFiles/index.js";
 
 export const tools = {
   listFiles,
