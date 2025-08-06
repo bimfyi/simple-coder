@@ -3,6 +3,7 @@ import * as readline from "node:readline/promises";
 import { type ModelMessage, streamText } from "ai";
 import { anthropic } from "./providers.js";
 import { type CodeAgentToolResult, outputHandlers, tools } from "./tools/index.js";
+import { colors } from "./utils.js";
 
 const terminal = readline.createInterface({
   input: process.stdin,
@@ -23,24 +24,28 @@ async function main() {
       tools,
     });
 
-    process.stdout.write("\nAssistant: ");
+    process.stdout.write(`\n${colors.green}Assistant: `);
 
     for await (const chunk of result.fullStream) {
       if (chunk.type === "text-delta") {
-        process.stdout.write(chunk.text);
+        process.stdout.write(`${colors.green}${chunk.text}`);
       } else if (chunk.type === "tool-call") {
         process.stdout.write(
-          `\n\n[Tool Call: ${chunk.toolName}] - Input: ${JSON.stringify(chunk.input)}\n`,
+          `${colors.blue}\n\n[Tool Call: ${chunk.toolName}] - Input: ${JSON.stringify(chunk.input)}\n${colors.reset}`,
         );
       } else if (chunk.type === "tool-result") {
         const toolResult = chunk as CodeAgentToolResult;
-        if (!toolResult.dynamic) {
-          outputHandlers[toolResult.toolName](toolResult.output);
+        if (toolResult.dynamic) {
+          continue;
         }
+
+        process.stdout.write(colors.blue);
+        outputHandlers[toolResult.toolName](toolResult.output);
+        process.stdout.write(colors.reset);
       }
     }
 
-    process.stdout.write("\n\n");
+    process.stdout.write(`${colors.reset}\n\n`);
 
     const assistantMessage = await result.response;
     messages.push(...assistantMessage.messages);
