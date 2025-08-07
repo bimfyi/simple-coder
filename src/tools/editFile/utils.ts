@@ -159,39 +159,39 @@ export function generateDiff(
   let preContext: string[] = [];
   let pendingEqual: string[] = [];
 
-  function openHunk(): void {
+  function openHunk(): Hunk {
     const aStart = Math.max(1, aLine - preContext.length);
     const bStart = Math.max(1, bLine - preContext.length);
-    hunk = { aStart, aLen: 0, bStart, bLen: 0, lines: [] };
+    const created: Hunk = { aStart, aLen: 0, bStart, bLen: 0, lines: [] };
     for (const t of preContext) {
-      (hunk as Hunk).lines.push({ prefix: " ", text: t });
-      (hunk as Hunk).aLen++;
-      (hunk as Hunk).bLen++;
+      created.lines.push({ prefix: " ", text: t });
+      created.aLen++;
+      created.bLen++;
     }
     preContext = [];
+    hunk = created;
+    return created;
   }
 
   function closeHunk(): void {
     if (!hunk) {
       return;
     }
+    const current: Hunk = hunk;
     // include up to context trailing equals
     const trail = pendingEqual.slice(0, context);
     for (const t of trail) {
-      (hunk as Hunk).lines.push({ prefix: " ", text: t });
-      (hunk as Hunk).aLen++;
-      (hunk as Hunk).bLen++;
+      current.lines.push({ prefix: " ", text: t });
+      current.aLen++;
+      current.bLen++;
     }
     pendingEqual = [];
-    hunks.push(hunk as Hunk);
+    hunks.push(current);
     hunk = null;
   }
 
   function getOrOpenHunk(): Hunk {
-    if (!hunk) {
-      openHunk();
-    }
-    return hunk as Hunk;
+    return hunk ?? openHunk();
   }
 
   for (const op of ops) {
@@ -247,14 +247,15 @@ export function generateDiff(
 
   if (hunk) {
     // Include remaining trailing equals up to context
+    const current: Hunk = hunk;
     const trail = pendingEqual.slice(0, context);
     for (const t of trail) {
-      (hunk as Hunk).lines.push({ prefix: " ", text: t });
-      (hunk as Hunk).aLen++;
-      (hunk as Hunk).bLen++;
+      current.lines.push({ prefix: " ", text: t });
+      current.aLen++;
+      current.bLen++;
     }
     pendingEqual = [];
-    hunks.push(hunk as Hunk);
+    hunks.push(current);
     hunk = null;
   }
 

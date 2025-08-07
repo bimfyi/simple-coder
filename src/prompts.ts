@@ -26,6 +26,17 @@ If the user only provides a filename or something generic, then you should alway
 - \`path\` (required): A relative path from the current working directory to read the file from.
 - \`range\` (optional): A range of lines to read from the file. If not provided, the entire file is read.
 
+## editFile
+
+Allows you to edit the contents of a file. Use this tool when you need to modify the contents of a file. This returns a structured object that includes the success state, the path of the edited
+or created file, an object representing the diff of the file's contents, the number of lines modified, and the new total number of lines.
+
+**Parameters**
+- \`path\` (required): A relative path from the current working directory to edit the file at.
+- \`ops\` (required): A list of operations to apply to the file.
+- \`create\` (optional): Whether to create the file if it does not exist.
+- \`keepEol\` (optional): Whether to keep the end-of-line style of the file.
+
 # Guidelines
 
 ## General
