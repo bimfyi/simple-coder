@@ -30,7 +30,7 @@ export const listFiles = tool({
           try {
             fileStats = await fs.stat(fullPath);
           } catch {
-            // continue with basic info
+            // just continue with basic info
           }
 
           const item: FileItem = {

@@ -1,6 +1,7 @@
 import "dotenv/config";
 import * as readline from "node:readline/promises";
 import { type ModelMessage, stepCountIs, streamText } from "ai";
+import { systemPrompt } from "./prompts.js";
 import { anthropic } from "./providers.js";
 import { tools } from "./tools/index.js";
 import { colors } from "./utils.js";
@@ -18,7 +19,7 @@ async function main() {
     messages.push({ role: "user", content: userInput });
 
     const result = streamText({
-      system: `You are a helpful assistant. You have access to a tool that can list files in the directory specified. Only use the tool if the user asks for it.`,
+      system: systemPrompt,
       model: anthropic("claude-sonnet-4-20250514"),
       messages,
       stopWhen: stepCountIs(Infinity),
