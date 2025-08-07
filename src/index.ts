@@ -1,8 +1,8 @@
 import "dotenv/config";
 import * as readline from "node:readline/promises";
-import { type ModelMessage, streamText } from "ai";
+import { type ModelMessage, stepCountIs, streamText } from "ai";
 import { anthropic } from "./providers.js";
-import { type CodeAgentToolResult, outputHandlers, tools } from "./tools/index.js";
+import { tools } from "./tools/index.js";
 import { colors } from "./utils.js";
 
 const terminal = readline.createInterface({
@@ -21,6 +21,7 @@ async function main() {
       system: `You are a helpful assistant. You have access to a tool that can list files in the directory specified. Only use the tool if the user asks for it.`,
       model: anthropic("claude-sonnet-4-20250514"),
       messages,
+      stopWhen: stepCountIs(Infinity),
       tools,
     });
 
@@ -30,18 +31,18 @@ async function main() {
       if (chunk.type === "text-delta") {
         process.stdout.write(`${colors.green}${chunk.text}`);
       } else if (chunk.type === "tool-call") {
+        const inputStr = JSON.stringify(chunk.input, null);
+        const displayInput = inputStr.length > 100 ? `${inputStr.substring(0, 100)}...` : inputStr;
         process.stdout.write(
-          `${colors.blue}\n\n[Tool Call: ${chunk.toolName}] - Input: ${JSON.stringify(chunk.input)}\n${colors.reset}`,
+          `${colors.blue}\n\n[${chunk.toolName}] Tool Call - Input: ${displayInput}\n${colors.reset}`,
         );
       } else if (chunk.type === "tool-result") {
-        const toolResult = chunk as CodeAgentToolResult;
-        if (toolResult.dynamic) {
-          continue;
-        }
-
-        process.stdout.write(colors.blue);
-        outputHandlers[toolResult.toolName](toolResult.output);
-        process.stdout.write(colors.reset);
+        const outputStr = JSON.stringify(chunk.output, null);
+        const displayOutput =
+          outputStr.length > 100 ? `${outputStr.substring(0, 100)}...` : outputStr;
+        process.stdout.write(
+          `${colors.blue}\n\n[${chunk.toolName}] Tool Result - Output: ${displayOutput}\n${colors.reset}`,
+        );
       }
     }
 
