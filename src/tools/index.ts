@@ -1,10 +1,12 @@
 import type { TypedToolCall, TypedToolResult } from "ai";
+import { editFile } from "./editFile/index.js";
 import { listFiles } from "./listFiles/index.js";
 import { readFile } from "./readFile/index.js";
 
 export const tools = {
   listFiles,
   readFile,
+  editFile,
 };
 
 export type CodeAgentToolCall = TypedToolCall<typeof tools>;

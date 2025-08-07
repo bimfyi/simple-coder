@@ -48,6 +48,35 @@ async function main() {
         process.stdout.write(
           `${colors.blue}\n\n[${chunk.toolName}] Tool Result - Output: ${displayOutput}\n${colors.reset}`,
         );
+
+        // Special diff rendering for editFile
+        if (
+          chunk.toolName === "editFile" &&
+          chunk.output &&
+          typeof (chunk.output as { ok?: boolean })?.ok === "boolean" &&
+          (chunk.output as { ok: boolean }).ok
+        ) {
+          const unified: string | undefined = (chunk.output as { diff?: { unified?: string } })
+            ?.diff?.unified;
+          if (unified) {
+            process.stdout.write(`${colors.blue}\n[Diff View]\n${colors.reset}`);
+            const diffLines = unified.split("\n");
+            for (const line of diffLines) {
+              if (line.startsWith("+")) {
+                process.stdout.write(`${colors.green}${line}\n`);
+              } else if (line.startsWith("-")) {
+                process.stdout.write(`${colors.red}${line}\n`);
+              } else if (line.startsWith("@@")) {
+                process.stdout.write(`${colors.cyan}${line}\n`);
+              } else if (line.startsWith("+++") || line.startsWith("---")) {
+                process.stdout.write(`${colors.cyan}${line}\n`);
+              } else {
+                process.stdout.write(`${colors.gray}${line}\n`);
+              }
+            }
+            process.stdout.write(colors.reset);
+          }
+        }
       }
     }
 
