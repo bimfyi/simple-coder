@@ -1,8 +1,9 @@
 import "dotenv/config";
 import * as readline from "node:readline/promises";
-import { type ModelMessage, streamText } from "ai";
+import { type ModelMessage, smoothStream, stepCountIs, streamText } from "ai";
+import { systemPrompt } from "./prompts.js";
 import { anthropic } from "./providers.js";
-import { type CodeAgentToolResult, outputHandlers, tools } from "./tools/index.js";
+import { tools } from "./tools/index.js";
 import { colors } from "./utils.js";
 
 const terminal = readline.createInterface({
@@ -18,8 +19,13 @@ async function main() {
     messages.push({ role: "user", content: userInput });
 
     const result = streamText({
-      system: `You are a helpful assistant. You have access to a tool that can list files in the directory specified. Only use the tool if the user asks for it.`,
+      system: systemPrompt,
       model: anthropic("claude-sonnet-4-20250514"),
+      stopWhen: stepCountIs(Infinity),
+      experimental_transform: smoothStream({
+        delayInMs: 20,
+        chunking: "word",
+      }),
       messages,
       tools,
     });
@@ -27,21 +33,51 @@ async function main() {
     process.stdout.write(`\n${colors.green}Assistant: `);
 
     for await (const chunk of result.fullStream) {
-      if (chunk.type === "text-delta") {
+      if (chunk.type === "text-start") {
+        process.stdout.write(`${colors.green}\n`);
+      } else if (chunk.type === "text-delta") {
         process.stdout.write(`${colors.green}${chunk.text}`);
       } else if (chunk.type === "tool-call") {
+        const inputStr = JSON.stringify(chunk.input, null);
+        const displayInput = inputStr.length > 100 ? `${inputStr.substring(0, 100)}...` : inputStr;
         process.stdout.write(
-          `${colors.blue}\n\n[Tool Call: ${chunk.toolName}] - Input: ${JSON.stringify(chunk.input)}\n${colors.reset}`,
+          `${colors.blue}\n\n[${chunk.toolName}] Tool Call - Input: ${displayInput}\n${colors.reset}`,
         );
       } else if (chunk.type === "tool-result") {
-        const toolResult = chunk as CodeAgentToolResult;
-        if (toolResult.dynamic) {
-          continue;
-        }
+        const outputStr = JSON.stringify(chunk.output, null);
+        const displayOutput =
+          outputStr.length > 100 ? `${outputStr.substring(0, 100)}...` : outputStr;
+        process.stdout.write(
+          `${colors.blue}\n\n[${chunk.toolName}] Tool Result - Output: ${displayOutput}\n${colors.reset}`,
+        );
 
-        process.stdout.write(colors.blue);
-        outputHandlers[toolResult.toolName](toolResult.output);
-        process.stdout.write(colors.reset);
+        // Special diff rendering for editFile
+        if (
+          chunk.toolName === "editFile" &&
+          chunk.output &&
+          typeof (chunk.output as { ok?: boolean })?.ok === "boolean" &&
+          (chunk.output as { ok: boolean }).ok
+        ) {
+          const unified: string | undefined = (chunk.output as { diff?: { unified?: string } })
+            ?.diff?.unified;
+          if (unified) {
+            const diffLines = unified.split("\n");
+            for (const line of diffLines) {
+              if (line.startsWith("+")) {
+                process.stdout.write(`${colors.green}${line}\n`);
+              } else if (line.startsWith("-")) {
+                process.stdout.write(`${colors.red}${line}\n`);
+              } else if (line.startsWith("@@")) {
+                process.stdout.write(`${colors.cyan}${line}\n`);
+              } else if (line.startsWith("+++") || line.startsWith("---")) {
+                process.stdout.write(`${colors.cyan}${line}\n`);
+              } else {
+                process.stdout.write(`${colors.gray}${line}\n`);
+              }
+            }
+            process.stdout.write(colors.reset);
+          }
+        }
       }
     }
 

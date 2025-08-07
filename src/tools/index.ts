@@ -1,15 +1,12 @@
-import type { InferToolOutput, TypedToolCall, TypedToolResult } from "ai";
-import { handleListFileOutput, listFiles } from "./listFiles/index.js";
+import type { TypedToolCall, TypedToolResult } from "ai";
+import { editFile } from "./editFile/index.js";
+import { listFiles } from "./listFiles/index.js";
+import { readFile } from "./readFile/index.js";
 
 export const tools = {
   listFiles,
-};
-
-export const outputHandlers: Record<
-  keyof typeof tools,
-  (output: InferToolOutput<(typeof tools)[keyof typeof tools]>) => void
-> = {
-  listFiles: handleListFileOutput,
+  readFile,
+  editFile,
 };
 
 export type CodeAgentToolCall = TypedToolCall<typeof tools>;

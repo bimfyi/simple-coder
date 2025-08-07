@@ -4,7 +4,6 @@ import { tool } from "ai";
 import {
   type ErrorOutput,
   type FileItem,
-  type ListFilesOutput,
   listFilesInputSchema,
   listFilesOutputSchema,
   type Stats,
@@ -31,7 +30,7 @@ export const listFiles = tool({
           try {
             fileStats = await fs.stat(fullPath);
           } catch {
-            // continue with basic info
+            // just continue with basic info
           }
 
           const item: FileItem = {
@@ -102,73 +101,3 @@ export const listFiles = tool({
     }
   },
 });
-
-/**
- * Handles the output of the listFiles tool; if successful, prints the list of files and folders to stdout as
- * a tree structure. If there is an error, it prints the error message to stdout.
- * @param output - The output of the listFiles tool.
- */
-export function handleListFileOutput(output: ListFilesOutput) {
-  if ("error" in output) {
-    process.stdout.write(`Error: ${output.error}\n`);
-  } else {
-    process.stdout.write(`\n📁 ${output.path}\n`);
-
-    const items = output.items;
-    const lastIndex = items.length - 1;
-
-    items.forEach((item, index) => {
-      const isLast = index === lastIndex;
-      const prefix = isLast ? "└── " : "├── ";
-      const icon = item.type === "directory" ? "📂 " : "📄 ";
-
-      let info = `${prefix}${icon}${item.name}`;
-
-      if (item.type === "file" && item.extension && !item.name.includes(item.extension)) {
-        info += ` (${item.extension})`;
-      }
-
-      if (item.type === "file" && item.size !== undefined) {
-        const sizeStr = formatFileSize(item.size);
-        info += ` [${sizeStr}]`;
-      }
-
-      if (item.isHidden) {
-        info += " (hidden)";
-      }
-
-      if (item.isExecutable) {
-        info += " *";
-      }
-
-      process.stdout.write(`${info}\n`);
-    });
-
-    if (items.length === 0) {
-      process.stdout.write("└── (empty)\n");
-    } else {
-      // Show summary stats
-      process.stdout.write(
-        `\n📊 ${output.stats.totalFiles} files, ${output.stats.totalDirectories} directories`,
-      );
-      if (output.stats.totalSize > 0) {
-        process.stdout.write(` (${formatFileSize(output.stats.totalSize)} total)`);
-      }
-      process.stdout.write("\n");
-    }
-  }
-}
-
-/**
- * Formats a file size in bytes to a human-readable string.
- * @param bytes - The file size in bytes.
- * @returns The formatted file size.
- */
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) {
-    return "0B";
-  }
-  const units = ["B", "KB", "MB", "GB"];
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
-  return `${(bytes / 1024 ** i).toFixed(1)}${units[i]}`;
-}
