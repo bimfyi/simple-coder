@@ -33,7 +33,9 @@ async function main() {
     process.stdout.write(`\n${colors.green}Assistant: `);
 
     for await (const chunk of result.fullStream) {
-      if (chunk.type === "text-delta") {
+      if (chunk.type === "text-start") {
+        process.stdout.write(`${colors.green}\n`);
+      } else if (chunk.type === "text-delta") {
         process.stdout.write(`${colors.green}${chunk.text}`);
       } else if (chunk.type === "tool-call") {
         const inputStr = JSON.stringify(chunk.input, null);
@@ -59,7 +61,6 @@ async function main() {
           const unified: string | undefined = (chunk.output as { diff?: { unified?: string } })
             ?.diff?.unified;
           if (unified) {
-            process.stdout.write(`${colors.blue}\n[Diff View]\n${colors.reset}`);
             const diffLines = unified.split("\n");
             for (const line of diffLines) {
               if (line.startsWith("+")) {
