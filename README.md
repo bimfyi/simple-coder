@@ -1,6 +1,6 @@
 # Simple Coder
 
-Simple Coder is a terminal-based coding assistant that is intentionally minimal and unoptimized as its purpose is to serve as an extremely basic example of how equipping a model that's good at tool calling with a decent-ish prompt & a set of tools can enable "agentic" behavior.
+Simple Coder is a terminal-based coding assistant. It is intentionally minimal and unoptimized as its purpose is to serve as a learning resource demonstrating how equipping a model that is good at tool use with a decent-ish prompt & a set of tools can enable "agentic" behavior. As such, it is not published anywhere nor is it recommended for production use.
 
 ## What It Does
 
@@ -22,9 +22,6 @@ All tools resolve paths relative to `process.cwd()` — i.e., whatever directory
 ```bash
 # Using pnpm (recommended)
 pnpm install
-
-# Optional: format/lint/typecheck
-pnpm format && pnpm lint && pnpm typecheck
 ```
 
 Set your OpenAI API key using either method:
@@ -41,7 +38,7 @@ echo "OPENAI_API_KEY=sk-..." > .env
 
 By default the app uses OpenAI's `gpt-5` model via the AI SDK. You can tweak the model/provider in `src/index.ts` / `src/providers.ts` if desired.
 
-## Use As a Local CLI (No Publish)
+## Usage as a Local CLI
 
 This package ships a CLI named `scoder`. Two ways to use it anywhere on your machine without publishing:
 
@@ -76,7 +73,7 @@ OPENAI_API_KEY=sk-... scoder
 # scoder
 ```
 
-Tips
+### Tips
 
 - Ensure your global pnpm bin is on PATH: `echo $(pnpm bin -g)`.
 - The assistant edits files relative to the directory you run it from.
