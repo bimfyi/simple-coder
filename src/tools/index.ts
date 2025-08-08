@@ -1,4 +1,4 @@
-import type { TypedToolCall, TypedToolResult } from "ai";
+import type { ToolSet, TypedToolCall, TypedToolResult } from "ai";
 import { editFile } from "./editFile/index.js";
 import { executeCommand } from "./executeCommand/index.js";
 import { listFiles } from "./listFiles/index.js";
@@ -9,7 +9,7 @@ export const tools = {
   readFile,
   editFile,
   executeCommand,
-};
+} satisfies ToolSet;
 
 export type CodeAgentToolCall = TypedToolCall<typeof tools>;
 export type CodeAgentToolResult = TypedToolResult<typeof tools>;

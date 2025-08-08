@@ -81,6 +81,14 @@ pnpm build    # type-check and emit to dist/
 pnpm start    # run built app from dist/
 ```
 
+## Testing
+
+```bash
+pnpm test         # run tests with Vitest
+pnpm test:ui      # run tests with UI
+pnpm test:coverage # run tests with coverage report
+```
+
 ## Other Scripts
 
 - `pnpm lint`: Lint and auto-fix code issues
