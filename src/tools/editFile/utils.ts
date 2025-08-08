@@ -1,11 +1,6 @@
 import type { LineInfo } from "../readFile/schemas.js";
-import { parseLines as parseLinesFromReader } from "../readFile/utils.js";
 
 import type { EditOperation } from "./schemas.js";
-
-export function parseLines(content: string): LineInfo[] {
-  return parseLinesFromReader(content);
-}
 
 function splitToLines(textOrLines: string | string[] | undefined): string[] {
   if (textOrLines === undefined) {

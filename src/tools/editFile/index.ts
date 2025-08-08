@@ -1,9 +1,9 @@
 import { promises as fs } from "node:fs";
 import { resolve } from "node:path";
 import { tool } from "ai";
-import { detectEol } from "../readFile/utils.js";
+import { detectEol, parseLines } from "../readFile/utils.js";
 import { editFileInputSchema, editFileOutputSchema } from "./schemas.js";
-import { applyOps, generateDiff, parseLines } from "./utils.js";
+import { applyOps, generateDiff } from "./utils.js";
 
 export const editFile = tool({
   description: "Edit file contents with line-based operations and diff generation",
