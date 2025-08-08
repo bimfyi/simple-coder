@@ -5,7 +5,7 @@ import { systemPrompt } from "./prompts.js";
 import { openai } from "./providers.js";
 import { terminal } from "./readline.js";
 import { tools } from "./tools/index.js";
-import { colors } from "./utils.js";
+import { colors, splashScreenText } from "./utils.js";
 
 const messages: ModelMessage[] = [];
 
@@ -15,6 +15,8 @@ async function main() {
       "OPENAI_API_KEY environment variable is not set. This must be supplied to run SimpleCoder.",
     );
   }
+
+  process.stdout.write(`${colors.purple}${splashScreenText}${colors.reset}\n\n`);
 
   while (true) {
     const userInput = await terminal.question("You: ");

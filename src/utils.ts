@@ -1,3 +1,12 @@
+export const splashScreenText = `
+  ▘     ▜          ▌    
+▛▘▌▛▛▌▛▌▐ █▌  ▛▘▛▌▛▌█▌▛▘
+▄▌▌▌▌▌▙▌▐▖▙▖  ▙▖▙▌▙▌▙▖▌ 
+      ▌                          
+                                 
+DISCLAIMER: This is a naive implementation of a code assistance agent. It is not optimized for performance or security. As such, it is not intended for production use.
+`;
+
 /** ANSI escape codes for terminal output colors */
 export const colors = {
   reset: "\x1b[0m",
