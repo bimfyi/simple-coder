@@ -2,7 +2,7 @@ import "dotenv/config";
 import * as readline from "node:readline/promises";
 import { type ModelMessage, smoothStream, stepCountIs, streamText } from "ai";
 import { systemPrompt } from "./prompts.js";
-import { anthropic } from "./providers.js";
+import { openai } from "./providers.js";
 import { tools } from "./tools/index.js";
 import { colors } from "./utils.js";
 
@@ -20,7 +20,7 @@ async function main() {
 
     const result = streamText({
       system: systemPrompt,
-      model: anthropic("claude-sonnet-4-20250514"),
+      model: openai("gpt-5"),
       stopWhen: stepCountIs(Infinity),
       experimental_transform: smoothStream({
         delayInMs: 20,
