@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import "dotenv/config";
 import { type ModelMessage, smoothStream, stepCountIs, streamText } from "ai";
-import { DEBUG_MODE } from "./config.js";
 import { systemPrompt } from "./prompts.js";
 import { openai } from "./providers.js";
 import { terminal } from "./readline.js";
@@ -27,49 +26,51 @@ async function main() {
       tools,
     });
 
-    process.stdout.write(`\n${colors.green}Assistant: `);
+    process.stdout.write(`\n${colors.purple}Assistant: `);
+    let hasStartedText = false;
+    const toolCallsInProgress = new Map<string, boolean>();
 
     for await (const chunk of result.fullStream) {
       if (chunk.type === "text-start") {
-        process.stdout.write(`${colors.green}\n`);
+        hasStartedText = true;
       } else if (chunk.type === "text-delta") {
-        process.stdout.write(`${colors.green}${chunk.text}`);
-      } else if (chunk.type === "tool-call") {
-        if (DEBUG_MODE) {
-          const inputStr = JSON.stringify(chunk.input, null);
-          const displayInput =
-            inputStr.length > 100 ? `${inputStr.substring(0, 100)}...` : inputStr;
-          process.stdout.write(
-            `${colors.blue}\n\n[Tool] ${chunk.toolName} called with: ${displayInput}\n${colors.reset}`,
-          );
-        } else {
-          process.stdout.write(
-            `${colors.blue}\n\n[Tool] ${chunk.toolName} called.\n${colors.reset}`,
-          );
+        if (!hasStartedText) {
+          process.stdout.write(`\n`);
+          hasStartedText = true;
         }
+        process.stdout.write(`${colors.purple}${chunk.text}`);
+      } else if (chunk.type === "tool-call") {
+        if (!hasStartedText) {
+          process.stdout.write(`\n`);
+          hasStartedText = true;
+        }
+        toolCallsInProgress.set(chunk.toolCallId, true);
+        const inputStr = JSON.stringify(chunk.input, null);
+        const displayInput = inputStr.length > 100 ? `${inputStr.substring(0, 100)}...` : inputStr;
+        process.stdout.write(
+          `${colors.blue}\n[Tool Call] ${chunk.toolName} called with: ${displayInput}${colors.reset}`,
+        );
       } else if (chunk.type === "tool-result") {
         // no dynamic tools here; skip so type inference works later
         if (chunk.dynamic) {
           continue;
         }
 
+        // Don't clear the initial call - show both the call and result
+        toolCallsInProgress.delete(chunk.toolCallId);
+
         // Regular tool-result printing
-        if (DEBUG_MODE) {
-          const outputStr = JSON.stringify(chunk.output, null);
-          const displayOutput =
-            outputStr.length > 100 ? `${outputStr.substring(0, 100)}...` : outputStr;
-          process.stdout.write(
-            `${colors.blue}\n\n[Tool] ${chunk.toolName} returned: ${displayOutput}\n${colors.reset}`,
-          );
-        } else {
-          process.stdout.write(
-            `${colors.blue}\n\n[Tool] ${chunk.toolName} succeeded.\n${colors.reset}`,
-          );
-        }
+        const outputStr = JSON.stringify(chunk.output, null);
+        const displayOutput =
+          outputStr.length > 100 ? `${outputStr.substring(0, 100)}...` : outputStr;
+        process.stdout.write(
+          `${colors.blue}\n[Tool Call] ${chunk.toolName} succeeded ✓ - returned: ${displayOutput}${colors.reset}\n`,
+        );
 
         // Special diff rendering for editFile
         if (chunk.toolName === "editFile" && chunk.output.ok) {
           const diffLines = chunk.output.diff.unified.split("\n");
+          process.stdout.write(`\n`);
           for (const line of diffLines) {
             if (line.startsWith("+")) {
               process.stdout.write(`${colors.green}${line}\n`);
