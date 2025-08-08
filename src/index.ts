@@ -10,6 +10,12 @@ import { colors } from "./utils.js";
 const messages: ModelMessage[] = [];
 
 async function main() {
+  if (!process.env.OPENAI_API_KEY) {
+    throw new Error(
+      "OPENAI_API_KEY environment variable is not set. This must be supplied to run SimpleCoder.",
+    );
+  }
+
   while (true) {
     const userInput = await terminal.question("You: ");
     messages.push({ role: "user", content: userInput });
@@ -51,15 +57,14 @@ async function main() {
           `${colors.blue}\n[Tool Call] ${chunk.toolName} called with: ${displayInput}${colors.reset}`,
         );
       } else if (chunk.type === "tool-result") {
+        toolCallsInProgress.delete(chunk.toolCallId);
+
         // no dynamic tools here; skip so type inference works later
         if (chunk.dynamic) {
           continue;
         }
 
-        // Don't clear the initial call - show both the call and result
-        toolCallsInProgress.delete(chunk.toolCallId);
-
-        // Regular tool-result printing
+        // regular tool-result printing
         const outputStr = JSON.stringify(chunk.output, null);
         const displayOutput =
           outputStr.length > 100 ? `${outputStr.substring(0, 100)}...` : outputStr;
@@ -67,7 +72,7 @@ async function main() {
           `${colors.blue}\n[Tool Call] ${chunk.toolName} succeeded ✓ - returned: ${displayOutput}${colors.reset}\n`,
         );
 
-        // Special diff rendering for editFile
+        // special diff rendering for editFile
         if (chunk.toolName === "editFile" && chunk.output.ok) {
           const diffLines = chunk.output.diff.unified.split("\n");
           process.stdout.write(`\n`);
@@ -96,4 +101,7 @@ async function main() {
   }
 }
 
-main().catch(console.error);
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});
