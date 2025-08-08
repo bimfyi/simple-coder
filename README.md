@@ -10,9 +10,10 @@ Simple Coder is a terminal-based coding assistant that is intentionally minimal 
 
 ## Tools Exposed to the AI
 
+- editFile: Applies line-based edits and returns a unified diff, lines changed, and totals.
+- executeCommand: Executes a command in the terminal.
 - listFiles: Lists files/folders in a directory with basic metadata. Ideal for discovery.
 - readFile: Reads a file as lines (with optional line range), preserving EOL info.
-- editFile: Applies line-based edits and returns a unified diff, lines changed, and totals.
 
 All tools resolve paths relative to `process.cwd()` — i.e., whatever directory you run the CLI from.
 
