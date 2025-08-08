@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import "dotenv/config";
 import * as readline from "node:readline/promises";
 import { type ModelMessage, smoothStream, stepCountIs, streamText } from "ai";
