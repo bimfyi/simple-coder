@@ -50,6 +50,11 @@ export function applyOps(
       continue;
     }
 
+    // skip operations that are completely out of bounds
+    if (op.start - 1 >= working.length) {
+      continue;
+    }
+
     const startIdx = Math.max(0, Math.min(working.length - 1, op.start - 1));
     const endLine = op.end ?? op.start;
     const endIdx = Math.max(0, Math.min(working.length - 1, endLine - 1));

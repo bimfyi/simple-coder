@@ -8,10 +8,16 @@ export function detectEol(content: string): "LF" | "CRLF" | "CR" {
   const lf = (content.match(/(?<!\r)\n/g) || []).length;
   const cr = (content.match(/\r(?!\n)/g) || []).length;
 
-  if (crlf > lf && crlf > cr) {
+  // default to LF if no line endings found
+  if (crlf === 0 && lf === 0 && cr === 0) {
+    return "LF";
+  }
+
+  // return the most common EOL style
+  if (crlf >= lf && crlf >= cr) {
     return "CRLF";
   }
-  if (cr > lf) {
+  if (cr >= lf) {
     return "CR";
   }
   return "LF";
