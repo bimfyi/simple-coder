@@ -27,10 +27,16 @@ pnpm install
 pnpm format && pnpm lint && pnpm typecheck
 ```
 
-Create a `.env` either in this repo (for local dev) or in any target project you will run `scoder` from:
+Set your OpenAI API key using either method:
 
+**Option A: Environment variable (recommended for CLI usage)**
 ```bash
-OPENAI_API_KEY=sk-...
+export OPENAI_API_KEY=sk-...
+```
+
+**Option B: .env file (convenient for development)**
+```bash
+echo "OPENAI_API_KEY=sk-..." > .env
 ```
 
 By default the app uses OpenAI's `gpt-5` model via the AI SDK. You can tweak the model/provider in `src/index.ts` / `src/providers.ts` if desired.
@@ -48,8 +54,10 @@ pnpm link -g
 
 # Now, from any other project directory
 cd /path/to/another/project
-echo "OPENAI_API_KEY=sk-..." > .env
-scoder
+OPENAI_API_KEY=sk-... scoder
+# Or export it for the session:
+# export OPENAI_API_KEY=sk-...
+# scoder
 ```
 
 2) Global install from a local tarball
@@ -62,8 +70,10 @@ pnpm add -g ./bim-bimfyi-simple-coder-*.tgz
 
 # Use it anywhere
 cd /path/to/another/project
-echo "OPENAI_API_KEY=sk-..." > .env
-scoder
+OPENAI_API_KEY=sk-... scoder
+# Or export it for the session:
+# export OPENAI_API_KEY=sk-...
+# scoder
 ```
 
 Tips
