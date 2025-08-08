@@ -17,6 +17,12 @@ const errorOutputSchema = z.object({
   cwd: z.string().describe("Working directory where command was attempted"),
 });
 
+const denialOutputSchema = z.object({
+  error: z.string().describe("Error message indicating denial"),
+  denied: z.literal(true).describe("Indicates user denied execution"),
+  userFeedback: z.string().describe("User's alternative instructions or feedback"),
+});
+
 export const executeCommandInputSchema = z.object({
   command: z.string().describe("Shell command to execute"),
   cwd: z
@@ -37,8 +43,13 @@ export const executeCommandInputSchema = z.object({
     .describe("Whether to run command in a shell (default: true)"),
 });
 
-export const executeCommandOutputSchema = z.union([successOutputSchema, errorOutputSchema]);
+export const executeCommandOutputSchema = z.union([
+  successOutputSchema,
+  errorOutputSchema,
+  denialOutputSchema,
+]);
 
 export type SuccessOutput = z.infer<typeof successOutputSchema>;
 export type ErrorOutput = z.infer<typeof errorOutputSchema>;
+export type DenialOutput = z.infer<typeof denialOutputSchema>;
 export type ExecuteCommandOutput = z.infer<typeof executeCommandOutputSchema>;

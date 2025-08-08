@@ -2,6 +2,8 @@ import { type ExecOptions, exec } from "node:child_process";
 import { resolve } from "node:path";
 import { promisify } from "node:util";
 import { tool } from "ai";
+import { ask } from "../../readline.js";
+import { colors } from "../../utils.js";
 import {
   type ErrorOutput,
   executeCommandInputSchema,
@@ -142,6 +144,43 @@ export const executeCommand = tool({
   inputSchema: executeCommandInputSchema,
   outputSchema: executeCommandOutputSchema,
   execute: async ({ command, cwd, timeout = 30000, env, shell = true }) => {
+    // Check for auto-approval first
+    const safeReadOnlyCommands = ["pwd", "whoami", "date"];
+    const trimmedCommand = command.trim();
+    const baseCommand = trimmedCommand.split(" ")[0];
+
+    // Only auto-approve if it's a simple command with no arguments
+    const isAutoApproved =
+      trimmedCommand === baseCommand && safeReadOnlyCommands.includes(baseCommand);
+
+    if (!isAutoApproved) {
+      const commandDisplay = command.length > 80 ? `${command.substring(0, 77)}...` : command;
+
+      const promptMsg =
+        `\n${colors.yellow}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${colors.reset}\n` +
+        `${colors.yellow}⚠️  Permission Required${colors.reset}\n` +
+        `${colors.yellow}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${colors.reset}\n\n` +
+        `SimpleCoder wants to execute:\n` +
+        `  ${colors.cyan}Command:${colors.reset} ${colors.bold}${commandDisplay}${colors.reset}\n` +
+        `  ${colors.cyan}Directory:${colors.reset} ${cwd || "current directory"}\n` +
+        `  ${colors.cyan}Timeout:${colors.reset} ${timeout}ms\n\n` +
+        `${colors.green}Enter 'y' to allow${colors.reset} or ${colors.yellow}provide alternative instructions:${colors.reset} `;
+
+      const response = await ask(promptMsg);
+
+      const approved = response.toLowerCase() === "y" || response.toLowerCase() === "yes";
+
+      if (!approved) {
+        return {
+          error: `User denied execution. User feedback: ${response}`,
+          denied: true,
+          userFeedback: response,
+        };
+      }
+    } else {
+      console.log(`\n${colors.green}✓ Auto-approved safe command: ${command}${colors.reset}`);
+    }
+
     const startTime = Date.now();
     const workingDir = cwd ? resolve(process.cwd(), cwd) : process.cwd();
 
@@ -165,7 +204,7 @@ export const executeCommand = tool({
 
       // Extract first command, handling quotes and paths
       const match = trimmedCommand.match(/^(?:(?:\.\/|\/)?[\w\-/]+\/)?(\w+)/);
-      if (match && match[1]) {
+      if (match?.[1]) {
         baseCommand = match[1];
       }
 

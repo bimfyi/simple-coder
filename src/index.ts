@@ -1,16 +1,11 @@
 #!/usr/bin/env node
 import "dotenv/config";
-import * as readline from "node:readline/promises";
 import { type ModelMessage, smoothStream, stepCountIs, streamText } from "ai";
 import { systemPrompt } from "./prompts.js";
 import { openai } from "./providers.js";
+import { terminal } from "./readline.js";
 import { tools } from "./tools/index.js";
 import { colors } from "./utils.js";
-
-const terminal = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
 
 const messages: ModelMessage[] = [];
 
@@ -45,6 +40,18 @@ async function main() {
           `${colors.blue}\n\n[${chunk.toolName}] Tool Call - Input: ${displayInput}\n${colors.reset}`,
         );
       } else if (chunk.type === "tool-result") {
+        // Check for denied execution for HITL tools (executeCommand)
+        if (chunk.output && typeof chunk.output === "object" && "denied" in chunk.output) {
+          const denialOutput = chunk.output as { denied: boolean; userFeedback?: string };
+          if (denialOutput.denied && denialOutput.userFeedback) {
+            process.stdout.write(
+              `${colors.yellow}\n[User Feedback] ${denialOutput.userFeedback}\n${colors.reset}`,
+            );
+            continue;
+          }
+        }
+
+        // Regular tool-result printing
         const outputStr = JSON.stringify(chunk.output, null);
         const displayOutput =
           outputStr.length > 100 ? `${outputStr.substring(0, 100)}...` : outputStr;

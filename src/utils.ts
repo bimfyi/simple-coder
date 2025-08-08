@@ -7,6 +7,7 @@ export const colors = {
   cyan: "\x1b[36m",
   gray: "\x1b[90m",
   yellow: "\x1b[33m",
+  bold: "\x1b[1m",
 } as const;
 
 /**
