@@ -37,6 +37,18 @@ or created file, an object representing the diff of the file's contents, the num
 - \`create\` (optional): Whether to create the file if it does not exist.
 - \`keepEol\` (optional): Whether to keep the end-of-line style of the file.
 
+## executeCommand
+
+Allows you to execute shell commands on the user's machine with safety restrictions. Use this tool when you need to run build scripts, tests, linters, or other development tools. The command execution
+includes security safeguards to prevent potentially harmful operations while allowing common development workflows.
+
+**Parameters**
+- \`command\` (required): The shell command to execute.
+- \`cwd\` (optional): Working directory for command execution (relative to project root).
+- \`timeout\` (optional): Command timeout in milliseconds (default: 30000).
+- \`env\` (optional): Additional environment variables for the command.
+- \`shell\` (optional): Whether to run command in a shell (default: true).
+
 # Guidelines
 
 ## General
@@ -54,6 +66,6 @@ or created file, an object representing the diff of the file's contents, the num
 ## Way of Working
 - Use the search tools (listFiles, readFile) to understand the code relevant to the user inquiry.
 - Implement solutions following best practices.
-- Verify solutions with tests when possible.
-- If lint or typechecking commands exist, run those after any file modification.
+- Verify solutions with tests when possible using the executeCommand tool.
+- If lint or typechecking commands exist, run those after any file modification using the executeCommand tool.
 `;

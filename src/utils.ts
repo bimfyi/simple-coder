@@ -2,11 +2,13 @@
 export const colors = {
   reset: "\x1b[0m",
   green: "\x1b[32m",
+  purple: "\x1b[35m",
   blue: "\x1b[34m",
   red: "\x1b[31m",
   cyan: "\x1b[36m",
   gray: "\x1b[90m",
   yellow: "\x1b[33m",
+  bold: "\x1b[1m",
 } as const;
 
 /**

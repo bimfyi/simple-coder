@@ -20,7 +20,11 @@ export const editFile = tool({
         original = await fs.readFile(targetPath, "utf-8");
       } catch {
         if (!create) {
-          return { ok: false as const, error: "File does not exist", path: targetPath };
+          return {
+            ok: false,
+            error: "File does not exist",
+            path: targetPath,
+          };
         }
         exists = false;
       }
@@ -41,7 +45,7 @@ export const editFile = tool({
       await fs.writeFile(targetPath, content, "utf-8");
 
       return {
-        ok: true as const,
+        ok: true,
         path: targetPath,
         diff,
         linesModified: linesChanged,
@@ -49,7 +53,7 @@ export const editFile = tool({
       };
     } catch (error) {
       return {
-        ok: false as const,
+        ok: false,
         error: error instanceof Error ? error.message : "Unknown error",
         path: resolve(process.cwd(), path),
       };
