@@ -1,8 +1,6 @@
 # Simple Coder
 
-Simple Coder is a small, terminal-based coding assistant that demonstrates how AI “agents” can reason about and edit code locally. It streams responses, logs tool usage, and operates strictly relative to your current working directory.
-
-It is intentionally minimal and intended for learning via a super basic example of how combining a prompt with a set of tools can be used to enable more "agentic" behavior — not production use.
+Simple Coder is a terminal-based coding assistant that is intentionally minimal and unoptimized as its purpose is to serve as an extremely basic example of how equipping a model that's good at tool calling with a decent-ish prompt & a set of tools can enable "agentic" behavior.
 
 ## What It Does
 
@@ -34,7 +32,7 @@ Create a `.env` either in this repo (for local dev) or in any target project you
 OPENAI_API_KEY=sk-...
 ```
 
-By default the app uses OpenAI via the AI SDK. You can tweak the model/provider in `src/index.ts` / `src/providers.ts` if desired.
+By default the app uses OpenAI's `gpt-5` model via the AI SDK. You can tweak the model/provider in `src/index.ts` / `src/providers.ts` if desired.
 
 ## Use As a Local CLI (No Publish)
 
@@ -82,11 +80,8 @@ pnpm build    # type-check and emit to dist/
 pnpm start    # run built app from dist/
 ```
 
-## Scripts
+## Other Scripts
 
-- `pnpm dev`: Start development server with hot reload
-- `pnpm build`: Compile TypeScript to JavaScript
-- `pnpm start`: Run the compiled application
 - `pnpm lint`: Lint and auto-fix code issues
 - `pnpm format`: Format code with Biome
 - `pnpm check`: Run all checks without auto-fixing
