@@ -271,9 +271,6 @@ export async function requestUserApproval(
   const response = await ask(promptMsg);
   const approved = response.toLowerCase() === "y" || response.toLowerCase() === "yes";
 
-  if (approved) {
-    return { approved };
-  }
   return {
     approved,
     userFeedback: response,

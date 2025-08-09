@@ -13,7 +13,6 @@ export const editFile = tool({
     try {
       const targetPath = resolve(process.cwd(), path);
 
-      // Read existing file or create new
       let original = "";
       let exists = true;
       try {
@@ -29,18 +28,14 @@ export const editFile = tool({
         exists = false;
       }
 
-      // Parse lines and apply operations
       const before = parseLines(original);
       const { modified: after, linesChanged } = applyOps(before, ops);
 
-      // Generate diff
       const diff = generateDiff(before, after, targetPath);
 
-      // Determine EOL sequence
       const eolStyle = keepEol && exists ? detectEol(original) : "LF";
       const eolSeq = eolStyle === "CRLF" ? "\r\n" : eolStyle === "CR" ? "\r" : "\n";
 
-      // Write file
       const content = after.map((l) => l.text).join(eolSeq);
       await fs.writeFile(targetPath, content, "utf-8");
 

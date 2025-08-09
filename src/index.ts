@@ -79,19 +79,16 @@ async function main() {
           const diffLines = chunk.output.diff.unified.split("\n");
           process.stdout.write(`\n`);
           for (const line of diffLines) {
-            if (line.startsWith("+")) {
-              process.stdout.write(`${colors.green}${line}\n`);
-            } else if (line.startsWith("-")) {
-              process.stdout.write(`${colors.red}${line}\n`);
-            } else if (line.startsWith("@@")) {
-              process.stdout.write(`${colors.cyan}${line}\n`);
-            } else if (line.startsWith("+++") || line.startsWith("---")) {
-              process.stdout.write(`${colors.cyan}${line}\n`);
-            } else {
-              process.stdout.write(`${colors.gray}${line}\n`);
-            }
+            const color = line.startsWith("+")
+              ? colors.green
+              : line.startsWith("-")
+                ? colors.red
+                : line.startsWith("@@") || line.startsWith("+++") || line.startsWith("---")
+                  ? colors.cyan
+                  : colors.gray;
+
+            process.stdout.write(`${color}${line}${colors.reset}\n`);
           }
-          process.stdout.write(colors.reset);
         }
       }
     }
