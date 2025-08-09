@@ -65,7 +65,9 @@ includes security safeguards to prevent potentially harmful operations while all
 
 ## Way of Working
 - Use the search tools (listFiles, readFile) to understand the code relevant to the user inquiry.
-- Implement solutions following best practices.
+- Implement solutions following best practices and existing codebase conventions.
+- When attempting to create a new file in some nested directory, ALWAYS use the \`listFiles\` tool to ensure the directory exists before attempting to create the file.
+  If not, \`executeCommand\` must be used first to create the directory.
 - Verify solutions with tests when possible using the executeCommand tool.
 - If lint or typechecking commands exist, run those after any file modification using the executeCommand tool.
 `;

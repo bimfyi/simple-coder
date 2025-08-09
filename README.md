@@ -8,7 +8,7 @@ Simple Coder is a terminal-based coding assistant. It is intentionally minimal a
 - Uses the AI SDK (`ai`) with OpenAI (`@ai-sdk/openai`) and a simple system prompt.
 - Streams tokens smoothly and prints structured tool-call/results to the console.
 
-## Tools Exposed to the AI
+## Tools Exposed to the Model
 
 - editFile: Applies line-based edits and returns a unified diff, lines changed, and totals.
 - executeCommand: Executes a command in the terminal.
@@ -36,11 +36,13 @@ export OPENAI_API_KEY=sk-...
 echo "OPENAI_API_KEY=sk-..." > .env
 ```
 
-By default the app uses OpenAI's `gpt-5` model via the AI SDK. You can tweak the model/provider in `src/index.ts` / `src/providers.ts` if desired.
+By default the app uses OpenAI's `gpt-5` model via the AI SDK. See the [ai-sdk documentation on providers](https://ai-sdk.dev/docs/foundations/providers-and-models) if you would
+like to use a different provider and/or model.
 
 ## Usage as a Local CLI
 
-This package ships a CLI named `scoder`. Two ways to use it anywhere on your machine without publishing:
+This package is NOT published and will never be. The only way to use it within a codebase other than this one directly is to follow either of the following methods (geared towards
+pnpm), which will allow you to use the `scoder` CLI from any directory.
 
 1) Global link (best for development)
 
